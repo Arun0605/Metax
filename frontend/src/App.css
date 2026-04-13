@@ -1,0 +1,79 @@
+.App {
+  min-height: 100vh;
+}
+
+.treatment-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.treatment-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.timeline-step {
+  transition: transform 0.3s ease;
+}
+
+.timeline-step:hover {
+  transform: scale(1.05);
+}
+
+.cta-button {
+  transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.15);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-table thead {
+  background-color: var(--warm-sand);
+}
+
+.admin-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--slate-navy);
+  border-bottom: 2px solid #E2E8F0;
+}
+
+.admin-table td {
+  padding: 16px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.admin-table tbody tr:hover {
+  background-color: var(--soft-blue);
+}
+
+.risk-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.risk-badge.green {
+  background-color: #D1FAE5;
+  color: #065F46;
+}
+
+.risk-badge.yellow {
+  background-color: #FEF3C7;
+  color: #92400E;
+}
+
+.risk-badge.red {
+  background-color: #FEE2E2;
+  color: #991B1B;
+}

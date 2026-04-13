@@ -1,0 +1,123 @@
+{
+  "design_system": {
+    "theme_strategy": "light-mode-only",
+    "emotional_archetype": "ORGANIC & EARTHY (Trust, Calm, Premium)",
+    "colors": {
+      "primary": {
+        "name": "Slate Navy",
+        "value": "#0F172A",
+        "description": "Used for primary text, headings, and strong interactive elements."
+      },
+      "secondary": {
+        "name": "Soft Blue",
+        "value": "#E0F2FE",
+        "description": "Backgrounds for cards or subtle highlights."
+      },
+      "accent": {
+        "name": "Warm Sand",
+        "value": "#F5F5F4",
+        "description": "Warmth to balance the clinical blue/white."
+      },
+      "background": {
+        "default": "#FFFFFF",
+        "muted": "#FAFAF9",
+        "glass": "rgba(255, 255, 255, 0.7)"
+      },
+      "risk_levels": {
+        "safe": "#10B981",
+        "warning": "#F59E0B",
+        "danger": "#F43F5E",
+        "description": "Muted, not neon. Clinical status indicators."
+      }
+    },
+    "typography": {
+      "font_family_headings": "Manrope, sans-serif",
+      "font_family_body": "Inter, sans-serif",
+      "scale": {
+        "h1": "text-5xl md:text-6xl font-light tracking-tight",
+        "h2": "text-3xl md:text-4xl font-normal tracking-tight",
+        "body": "text-base md:text-lg leading-relaxed text-slate-600"
+      }
+    },
+    "spacing": {
+      "container_padding": "p-6 md:p-12 lg:p-24",
+      "section_gap": "gap-16 md:gap-24",
+      "element_gap": "gap-4 md:gap-8"
+    },
+    "effects": {
+      "glassmorphism": "backdrop-blur-xl bg-white/70 border border-white/20 shadow-sm",
+      "soft_shadow": "shadow-[0_8px_30px_rgb(0,0,0,0.04)]",
+      "radius": "rounded-2xl"
+    }
+  },
+  "layout_strategies": {
+    "grid_system": "Bento Grid (Mode A) for Landing, High Density (Mode B) for Admin",
+    "container_width": "max-w-7xl mx-auto",
+    "alignment": "Left-aligned content for readability, centered Hero if high impact."
+  },
+  "components": {
+    "hero_section": {
+      "type": "Split or Centered with High-Res Image",
+      "elements": [
+        "Headline: 'Transform Your Health, Reclaim Your Life'",
+        "CTA: 'Start Your Free Health Assessment' (Triggers Modal)",
+        "Visual: High-quality clinic interior or doctor-patient interaction"
+      ],
+      "style": "Clean, breathing room, fade-in animation."
+    },
+    "calculator_modal": {
+      "library": "Shadcn Dialog + Form",
+      "structure": "Multi-step Wizard (Intro -> Metrics -> Comorbidities -> Results)",
+      "style": "Clean, minimal inputs, well-spaced. No clutter. Auto-calculate BMI.",
+      "logic_visuals": "Progress bar, clear 'Next' buttons, Risk Zone result card."
+    },
+    "timeline_journey": {
+      "type": "Horizontal Flowchart",
+      "icons": "Lucide React (Vector)",
+      "steps": ["Consultation", "Metabolic Triage", "Intervention", "Lifelong Support"],
+      "animation": "Staggered fade-in on scroll."
+    },
+    "treatment_cards": {
+      "style": "Glassmorphism",
+      "interaction": "Hover lift + subtle glow",
+      "content": ["Lifestyle Management", "Medical Weight Loss", "Surgical Interventions"]
+    },
+    "charts": {
+      "library": "Recharts",
+      "types": ["PieChart (Comorbidity Resolution)", "LineChart (Weight Loss Projection)"],
+      "style": "Minimal axes, soft colors (matching palette), custom tooltips."
+    },
+    "lead_capture": {
+      "condition": "Yellow or Red Zone",
+      "fields": ["Name", "Phone", "Preferred Time"],
+      "style": "Embedded in Result Card or separate Modal step."
+    }
+  },
+  "assets": {
+    "images": {
+      "hero_bg": "https://images.unsplash.com/photo-1735013531564-a419dc5f31ea?q=85&w=1920&auto=format&fit=crop",
+      "doctor_trust": "https://images.pexels.com/photos/7578806/pexels-photo-7578806.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "clinic_interior": "https://images.unsplash.com/photo-1629909615957-be38d48fbbe6?q=85&w=1920&auto=format&fit=crop",
+      "patient_interaction": "https://images.pexels.com/photos/8313224/pexels-photo-8313224.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+    },
+    "icons": "Use Lucide-React for all iconography (Stethoscope, Activity, Calendar, ArrowRight, etc)."
+  },
+  "instructions_to_main_agent": [
+    "Implement the 'Health Risk Calculator' as a global modal accessible from Hero CTA.",
+    "Use 'Manrope' font for all headings to establish the luxury clinical feel.",
+    "Ensure 'Inter' is used for body text for maximum readability.",
+    "Use 'Recharts' for the data visualization section with custom minimally styled tooltips.",
+    "Admin Dashboard must be protected by a simple /admin route (no auth for now as per user choice, but structure it for future).",
+    "Use Asian BMI cutoffs: <23 (Normal), 23-27.5 (Overweight), >=27.5 (Obese) - wait, prompt says <27.5 Green, 27.5-32.4 Yellow, >=32.5 Red. Follow PROMPT logic strictly.",
+    "Strictly follow the PROMPT logic for Risk Zones: Green (<27.5), Yellow (27.5-32.4 + comorbidity), Red (>=32.5).",
+    "Ensure all medical data has a visible disclaimer: 'Results are estimates. Consult a professional.'",
+    "Use 'sonner' for toast notifications (e.g., 'Lead submitted successfully')."
+  ],
+  "universal_guidelines": [
+    "Do NOT use gradients for text or heavy backgrounds. Stick to flat, clean luxury colors.",
+    "Use 2x padding than normal. White space is luxury.",
+    "All interactive elements must have `data-testid` attributes.",
+    "Do not use generic 'Lorem Ipsum'. Use medical-relevant placeholder text if real content is missing.",
+    "Ensure the layout is responsive mobile-first."
+  ]
+}
