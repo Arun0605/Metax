@@ -69,8 +69,8 @@ const DigitalTwinAssessment = () => {
     };
 
     try {
-      // REVERTED BACK TO LOCALHOST FOR LOCAL TESTING
-      const response = await fetch('http://127.0.0.1:5000/api/digital-twin/simulate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const response = await fetch(`${API_BASE_URL}/api/generate-twin`, {
+      const response = await fetch('https://metax-backend-xxxx.onrender.com/api/digital-twin/simulate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const data = await response.json(); setResult(data); setStep(6);
     } catch (error) { alert("Backend sync failed. Is server.py running?"); }
     setLoading(false);
