@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-import os # Add this import at the top
+import os
 
 app = FastAPI(title="MetaX Digital Twin API - Evidence Based Build")
 
@@ -14,18 +14,11 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware, 
-    allow_origins=origins, # Use the list above
+    allow_origins=origins, 
     allow_credentials=True, 
     allow_methods=["*"], 
     allow_headers=["*"]
 )
-
-# ... [Keep all your calculation functions exactly as they are] ...
-
-if __name__ == "__main__":
-    # IMPORTANT: Change host to "0.0.0.0" and use the PORT Render gives you
-    port = int(os.environ.get("PORT", 5000))
-    uvicorn.run("server:app", host="0.0.0.0", port=port)
 
 # ==========================================
 # CLINICAL CALCULATOR ENGINES (WITH METHODOLOGY)
@@ -278,4 +271,5 @@ async def generate_simulation(request: Request):
     }
 
 if __name__ == "__main__":
-    uvicorn.run("server:app", host="127.0.0.1", port=5000, reload=True)
+    port = int(os.environ.get("PORT", 5000))
+    uvicorn.run("server:app", host="0.0.0.0", port=port)
