@@ -28,7 +28,7 @@ const HeroSection = ({ onOpenCalculator }) => {
           <button
             data-testid="start-assessment-button"
             onClick={onOpenCalculator}
-            className="cta-button inline-flex items-center gap-3 bg-slate-navy text-white px-10 py-5 rounded-full text-lg font-medium hover:bg-slate-800"
+            className="inline-flex items-center gap-3 bg-slate-900 text-white px-10 py-5 rounded-full text-lg font-medium hover:bg-slate-800 transition-all shadow-lg"
           >
             Start Your Free Health Assessment
             <ArrowRight className="w-5 h-5" />
