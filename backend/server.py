@@ -1,9 +1,31 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+import os # Add this import at the top
 
 app = FastAPI(title="MetaX Digital Twin API - Evidence Based Build")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+
+# Explicitly allow your new domain
+origins = [
+    "http://localhost:3000",
+    "https://weightloss-assessment.in",
+    "https://www.weightloss-assessment.in"
+]
+
+app.add_middleware(
+    CORSMiddleware, 
+    allow_origins=origins, # Use the list above
+    allow_credentials=True, 
+    allow_methods=["*"], 
+    allow_headers=["*"]
+)
+
+# ... [Keep all your calculation functions exactly as they are] ...
+
+if __name__ == "__main__":
+    # IMPORTANT: Change host to "0.0.0.0" and use the PORT Render gives you
+    port = int(os.environ.get("PORT", 5000))
+    uvicorn.run("server:app", host="0.0.0.0", port=port)
 
 # ==========================================
 # CLINICAL CALCULATOR ENGINES (WITH METHODOLOGY)
