@@ -235,9 +235,9 @@ def calculate_economics(projections, data):
 async def generate_simulation(request: Request):
     data = await request.json()
     
-    age = float(data.get('age', 40))
-    weight = float(data.get('weight', 110))
-    bmi = float(data.get('bmi', 40.0))
+   age = float(data.get('age') or 40)
+weight = float(data.get('weight') or 110)
+bmi = float(data.get('bmi') or 40.0)
     gender = data.get('gender', 'male')
     procedure = data.get('procedure', 'SG') 
     
