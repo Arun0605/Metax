@@ -58,9 +58,10 @@ def calculate_lifestyle_twin(weight):
     }
 
 def calculate_liver_nfs(age, bmi, labs):
-    ast_alt = float(labs.get('ast_alt_ratio', 1.0))
-    platelets = float(labs.get('platelets', 200))
-    albumin = float(labs.get('albumin', 4.0))
+    # BULLETPROOFED: Replaced comma with 'or' to handle None/null values
+    ast_alt = float(labs.get('ast_alt_ratio') or 1.0)
+    platelets = float(labs.get('platelets') or 200)
+    albumin = float(labs.get('albumin') or 4.0)
     has_diabetes = labs.get('has_diabetes', False)
     
     nfs = -1.675 + 0.037 * age + 0.094 * bmi + 1.13 * (1 if has_diabetes else 0) + 0.99 * ast_alt - 0.013 * platelets - 0.66 * albumin
@@ -144,8 +145,9 @@ def calculate_mobility(mob_profile, weight, procedure):
     }
 
 def calculate_cardio(lipid_data, age, gender, has_dm, sbp, procedure):
-    tc = float(lipid_data.get('tc', 200))
-    hdl = float(lipid_data.get('hdl', 40))
+    # BULLETPROOFED
+    tc = float(lipid_data.get('tc') or 200)
+    hdl = float(lipid_data.get('hdl') or 40)
     smoker = lipid_data.get('smoker', False)
     
     risk = 0.015 * max(0, (age - 35))
@@ -244,11 +246,16 @@ async def generate_simulation(request: Request):
     has_htn = data.get('htn_profile', {}).get('has_htn', False)
     has_diabetes = data.get('diabetes_profile',{}).get('status') == 'T2DM'
 
+    # BULLETPROOFED: hba1c, meds_count, and systolic bp checks
+    safe_hba1c = float(data.get('diabetes_profile',{}).get('hba1c') or 5.5)
+    safe_meds = int(data.get('diabetes_profile',{}).get('meds_count') or 0)
+    safe_sbp = float(data.get('htn_profile',{}).get('systolic') or 120)
+
     projections = {
-        "t2dm_remission_diarem": calculate_diabetes(age, float(data.get('diabetes_profile',{}).get('hba1c', 5.5)), data.get('diabetes_profile',{}).get('insulin_use'), int(data.get('diabetes_profile',{}).get('meds_count', 0))) if has_diabetes else None,
+        "t2dm_remission_diarem": calculate_diabetes(age, safe_hba1c, data.get('diabetes_profile',{}).get('insulin_use'), safe_meds) if has_diabetes else None,
         "osa_remission": calculate_osa(data.get('osa_profile',{}), age, bmi, gender, has_htn, procedure),
         "gerd_outcomes": calculate_gerd(data.get('gerd_profile',{}), procedure),
-        "lipid_outcomes": calculate_cardio(data.get('lipid_profile',{}), age, gender, has_diabetes, float(data.get('htn_profile',{}).get('systolic', 120)), procedure),
+        "lipid_outcomes": calculate_cardio(data.get('lipid_profile',{}), age, gender, has_diabetes, safe_sbp, procedure),
         "mobility_outcomes": calculate_mobility(data.get('mobility_profile',{}), weight, procedure),
         "perioperative_risk": calculate_risk(data.get('risk_profile',{}), procedure),
         "nutrition_outcomes": calculate_nutrition(data.get('nutrition_profile',{}), gender, procedure)
