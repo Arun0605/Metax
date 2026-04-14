@@ -68,11 +68,19 @@ const DigitalTwinAssessment = () => {
       nutrition_profile: { menstruating: formData.menstruating, baseline_anemia: formData.baseline_anemia }
     };
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/generate-twin`, {
-      const response = await fetch('https://metax-backend-xxxx.onrender.com/api/digital-twin/simulate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      const data = await response.json(); setResult(data); setStep(6);
-    } catch (error) { alert("Backend sync failed. Is server.py running?"); }
+try {
+      const response = await fetch('https://metax-backend.onrender.com/api/digital-twin/simulate', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify(payload) 
+      });
+      const data = await response.json(); 
+      setResult(data); 
+      setStep(6);
+    } catch (error) { 
+      console.error(error);
+      alert("Backend sync failed. Is server.py running?"); 
+    }
     setLoading(false);
   };
 
