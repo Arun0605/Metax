@@ -35,19 +35,19 @@ const DigitalTwinAssessment = () => {
 
   // FULL CLINICAL STATE
   const [formData, setFormData] = useState({
-    patient_name: 'Patient X', patient_id: 'AX-2026', age: '45', height: '172', weight: '118', gender: 'male',
-    hba1c: '7.8', meds_count: '2', insulin_use: false, c_peptide: '2.5', duration_years: '4',
-    ast: '55', alt: '65', platelets: '190', albumin: '3.9',
-    tc: '210', ldl: '135', hdl: '38', tg: '195', smoker: false, on_statin: true,
-    has_htn: true, sys_bp: '148', dia_bp: '92', htn_meds: '1', htn_duration: '5',
-    has_osa: false, ahi_severity: 'moderate', snoring: true, tired: true, observed_apnea: false, neck_cm: '44',
-    has_gerd: false, baseline_symptoms: 'Moderate', esophagitis_la: 'None', ppi_use: false, hiatal_hernia: false,
+    patient_name: '', patient_id: '', age: '', height: '', weight: '', gender: '',
+    hba1c: '', meds_count: '', insulin_use: false, c_peptide: '', duration_years: '',
+    ast: '', alt: '', platelets: '', albumin: '',
+    tc: '', ldl: '', hdl: '', tg: '', smoker: false, on_statin: true,
+    has_htn: true, sys_bp: '', dia_bp: '', htn_meds: '', htn_duration: '',
+    has_osa: false, ahi_severity: '', snoring: true, tired: true, observed_apnea: false, neck_cm: '44',
+    has_gerd: false, baseline_symptoms: '', esophagitis_la: '', ppi_use: false, hiatal_hernia: false,
     heartburn: true, regurgitation: true, swallowing_diff: false,
-    has_oa: false, pain_severity: 'Moderate', daily_nsaid: true,
+    has_oa: false, pain_severity: '', daily_nsaid: true,
     pain_walking: true, morning_stiffness: true,
     functional_dependent: false, history_vte: false, bleeding_disorder: false, steroid_use: false,
     menstruating: false, baseline_anemia: false, baseline_b12_low: false,
-    procedure: 'SG' 
+    procedure: '' 
   });
 
   const handleSubmit = async () => {
