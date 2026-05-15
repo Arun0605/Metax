@@ -1,52 +1,65 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
-import JourneyTimeline from '../components/JourneyTimeline';
-import TreatmentPathways from '../components/TreatmentPathways';
-import PrevalenceSection from '../components/PrevalenceSection';
-import DataVisualization from '../components/DataVisualization';
-import HealthCalculatorModal from '../components/HealthCalculatorModal';
+import IndiaStatsSection from '../components/IndiaStatsSection';
+import ObesityDefinitionSection from '../components/ObesityDefinitionSection';
+import BMICalculatorSection from '../components/BMICalculatorSection';
+import HealthRisksSection from '../components/HealthRisksSection';
+import GovernmentInitiativesSection from '../components/GovernmentInitiativesSection';
+import CTASection from '../components/CTASection';
+import FloatingCTA from '../components/FloatingCTA';
+import Footer from '../components/Footer';
 
 const HomePage = () => {
-  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
-  const navigate = useNavigate(); // This is the new tool that lets us change pages
-
+  // Global scroll-reveal observer (for legacy .scroll-reveal classes)
   useEffect(() => {
-    const observerCallback = (entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('revealed');
+    const cb = (entries) =>
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('revealed');
         }
       });
-    };
-
-    const observer = new IntersectionObserver(observerCallback, {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
+    const obs = new IntersectionObserver(cb, {
+      threshold: 0.08,
+      rootMargin: '0px 0px -48px 0px',
     });
-
-    document.querySelectorAll('.scroll-reveal').forEach(el => {
-      observer.observe(el);
-    });
-
-    return () => observer.disconnect();
+    document
+      .querySelectorAll('.scroll-reveal, .scroll-reveal-left, .scroll-reveal-right')
+      .forEach(el => obs.observe(el));
+    return () => obs.disconnect();
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* We changed the button action right here! */}
-      <HeroSection onOpenCalculator={() => navigate('/digital-twin')} />
-      
-      <JourneyTimeline />
-      <TreatmentPathways />
-      <PrevalenceSection />
-      <DataVisualization />
-      
-      {/* The old modal is still here just in case, but it won't open when you click the main button anymore */}
-      <HealthCalculatorModal 
-        isOpen={isCalculatorOpen} 
-        onClose={() => setIsCalculatorOpen(false)} 
-      />
+    <div className="min-h-screen" style={{ background: '#F8FAFC' }}>
+      {/* Sticky navigation */}
+      <Navbar />
+
+      {/* 1. Hero — animated gradient, stats, dual CTA */}
+      <HeroSection />
+
+      {/* 2. Understanding Obesity — WHO def, BMI cut-offs, causes */}
+      <ObesityDefinitionSection />
+
+      {/* 3. BMI Calculator — interactive gauge with Indian thresholds */}
+      <BMICalculatorSection />
+
+      {/* 4. Health Risks & NCDs — pie chart, disease cards */}
+      <HealthRisksSection />
+
+      {/* 5. India Crisis — NFHS-5 data, trend bars */}
+      <IndiaStatsSection />
+
+      {/* 6. Call to Action — Assessment + Management Pathway cards */}
+      <CTASection />
+
+      {/* 7. Government Initiatives — multi-ministry program cards */}
+      <GovernmentInitiativesSection />
+
+      {/* Footer */}
+      <Footer />
+
+      {/* Floating bot CTA — always present */}
+      <FloatingCTA />
     </div>
   );
 };
