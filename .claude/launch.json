@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["/Users/dimple_1/MetaX/.claude/worktrees/elegant-spence-b7ca6d/frontend/node_modules/.bin/craco", "start"],
+      "cwd": "/Users/dimple_1/MetaX/.claude/worktrees/elegant-spence-b7ca6d/frontend",
+      "port": 3000
+    }
+  ]
+}

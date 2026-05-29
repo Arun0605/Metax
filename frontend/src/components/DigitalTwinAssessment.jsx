@@ -24,6 +24,7 @@ const CircularProgress = ({ percentage, color, label, sublabel, delay }) => {
 const DigitalTwinAssessment = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [loadingMsg, setLoadingMsg] = useState('Simulating...');
   const [result, setResult] = useState(null);
   
   const [showLifestyleModal, setShowLifestyleModal] = useState(false);
@@ -33,6 +34,7 @@ const DigitalTwinAssessment = () => {
   // FULL CLINICAL STATE
   const [formData, setFormData] = useState({
     patient_name: '', patient_id: '', age: '', height: '', weight: '', gender: 'female',
+    phone: '', email: '', city: '', notes: '',
     hba1c: '', meds_count: '', insulin_use: false, c_peptide: '', duration_years: '',
     ast: '', alt: '', platelets: '', albumin: '',
     tc: '', ldl: '', hdl: '', tg: '', smoker: false, on_statin: false,
@@ -54,13 +56,41 @@ const DigitalTwinAssessment = () => {
     // 1. DATA VALIDATION (The Guardrail)
     if (!formData.age || !formData.height || !formData.weight) {
         alert("Insufficient Data: Please provide Age, Height, and Weight to generate an accurate clinical twin.");
-        setStep(1); 
+        setStep(1);
         return;
     }
 
     setLoading(true);
+    const wakeTimer = setTimeout(() => setLoadingMsg('Waking up server (30s)...'), 5000);
     const bmiCalc = Number(formData.weight) / ((Number(formData.height)/100)**2);
-    
+
+    // Save patient data to backend (non-blocking)
+    try {
+      await fetch('https://metax-backend.onrender.com/api/patients/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.patient_name,
+          phone: formData.phone,
+          email: formData.email,
+          city: formData.city,
+          notes: formData.notes,
+          age: formData.age,
+          gender: formData.gender,
+          height: formData.height,
+          weight: formData.weight,
+          bmi: bmiCalc.toFixed(1),
+          procedure: formData.procedure,
+          has_diabetes: Number(formData.hba1c) >= 6.5,
+          hba1c: formData.hba1c,
+          has_htn: formData.has_htn,
+          has_osa: formData.has_osa,
+          has_gerd: formData.has_gerd,
+          has_oa: formData.has_oa,
+        })
+      });
+    } catch(e) { console.log('Patient save failed silently', e); }
+
     const payload = {
       ...formData,
       bmi: Number(bmiCalc.toFixed(1)),
@@ -76,18 +106,20 @@ const DigitalTwinAssessment = () => {
     };
 
     try {
-      const response = await fetch('https://metax-backend.onrender.com/api/digital-twin/simulate', { 
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify(payload) 
+      const response = await fetch('https://metax-backend.onrender.com/api/digital-twin/simulate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
-      const data = await response.json(); 
-      setResult(data); 
-      setStep(6);
-    } catch (error) { 
+      const data = await response.json();
+      setResult(data);
+      setStep(7);
+    } catch (error) {
       console.error(error);
-      alert("Backend sync failed. Is server.py running?"); 
+      alert("Backend sync failed. Is server.py running?");
     }
+    clearTimeout(wakeTimer);
+    setLoadingMsg('Simulating...');
     setLoading(false);
   };
 
@@ -136,13 +168,13 @@ const DigitalTwinAssessment = () => {
   return (
     <div className="max-w-6xl mx-auto rounded-[2rem] overflow-hidden mt-10 mb-20 bg-white font-sans text-slate-800 border-4 border-slate-100 shadow-xl relative">
       
-      {/* FORM STEPS 1-5 */}
-      {step < 6 && (
+      {/* FORM STEPS 1-6 */}
+      {step < 7 && (
         <div className="p-12">
           <div className="mb-10 text-center">
             <h2 className="text-3xl font-light text-slate-900 uppercase tracking-widest">Clinical <span className="font-bold text-indigo-600">Configurator</span></h2>
             <div className="flex justify-center mt-4 space-x-2">
-                {[1,2,3,4,5].map(i => <div key={i} className={`h-1.5 w-10 rounded-full transition-all duration-500 ${step >= i ? 'bg-indigo-600' : 'bg-slate-200'}`}></div>)}
+                {[1,2,3,4,5,6].map(i => <div key={i} className={`h-1.5 w-10 rounded-full transition-all duration-500 ${step >= i ? 'bg-indigo-600' : 'bg-slate-200'}`}></div>)}
             </div>
             {step === 1 && <p className="text-xs font-bold text-rose-500 mt-4 tracking-widest uppercase">* Required Fields</p>}
           </div>
@@ -265,10 +297,27 @@ const DigitalTwinAssessment = () => {
               </div>
             )}
 
+            {step === 6 && (
+              <div className="space-y-6 animate-in slide-in-from-right">
+                <div className="p-6 bg-indigo-50 rounded-2xl border border-indigo-100">
+                  <h3 className="font-bold text-indigo-800 text-sm uppercase mb-1">Almost There!</h3>
+                  <p className="text-xs text-indigo-600 mb-4">Enter your contact details to receive your personalised health report</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="col-span-2"><label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Full Name *</label><input type="text" className="w-full p-3 bg-white rounded-lg border border-slate-300" value={formData.patient_name} onChange={(e)=>setFormData({...formData, patient_name:e.target.value})} placeholder="Required" /></div>
+                    <div><label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Phone Number *</label><input type="tel" className="w-full p-3 bg-white rounded-lg border border-slate-300" value={formData.phone} onChange={(e)=>setFormData({...formData, phone:e.target.value})} placeholder="+91 XXXXX XXXXX" /></div>
+                    <div><label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Email Address</label><input type="email" className="w-full p-3 bg-white rounded-lg border border-slate-300" value={formData.email} onChange={(e)=>setFormData({...formData, email:e.target.value})} placeholder="Optional" /></div>
+                    <div className="col-span-2"><label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">City</label><input type="text" className="w-full p-3 bg-white rounded-lg border border-slate-300" value={formData.city} onChange={(e)=>setFormData({...formData, city:e.target.value})} placeholder="Optional" /></div>
+                    <div className="col-span-2"><label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Additional Notes</label><textarea className="w-full p-3 bg-white rounded-lg border border-slate-300 text-sm" rows={2} value={formData.notes} onChange={(e)=>setFormData({...formData, notes:e.target.value})} placeholder="Any specific concerns or doctor's notes..." /></div>
+                  </div>
+                </div>
+                <p className="text-center text-[10px] text-slate-400">🔒 Your data is confidential and used only for your health report</p>
+              </div>
+            )}
+
             <div className="mt-10 flex justify-between pt-6 border-t border-slate-100">
               {step > 1 ? <button onClick={prevStep} className="font-bold text-slate-400 uppercase text-xs hover:text-slate-800">← Back</button> : <div/>}
-              <button onClick={step === 5 ? handleSubmit : nextStep} disabled={loading} className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg hover:bg-indigo-500 transition">
-                {loading ? "Simulating..." : step === 5 ? "Generate Twin →" : "Next Phase"}
+              <button onClick={step === 6 ? handleSubmit : nextStep} disabled={loading} className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg hover:bg-indigo-500 transition">
+                {loading ? loadingMsg : step === 6 ? "Generate Twin →" : "Next Phase"}
               </button>
             </div>
           </div>
@@ -276,8 +325,19 @@ const DigitalTwinAssessment = () => {
       )}
 
       {/* DASHBOARD: LOGIC SPLIT FOR SURGERY VS LIFESTYLE */}
-      {step === 6 && result && (
+      {step === 7 && result && (
         <div className="animate-in fade-in duration-1000 bg-white">
+          {/* Floating PDF button */}
+          <button
+            onClick={handleDownloadPDF}
+            className="fixed bottom-8 right-8 z-50 flex items-center gap-2 bg-slate-900 hover:bg-slate-700 text-white px-5 py-3 rounded-full shadow-2xl font-bold text-xs uppercase tracking-widest transition-all hover:scale-105"
+            title="Download PDF Report"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Download PDF
+          </button>
           <div ref={reportRef} className="p-10 md:p-14 bg-white relative print:p-6 print:m-0">
             
             {/* ========================================== */}
@@ -549,7 +609,7 @@ const DigitalTwinAssessment = () => {
       )}
 
       {/* LUXURIOUS LIGHT-THEMED INTERACTIVE LIFESTYLE MODAL (SURGICAL PATIENTS ONLY) */}
-      {showLifestyleModal && result && isSurgeryIndicated && (
+      {step === 7 && showLifestyleModal && result && isSurgeryIndicated && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-300 print:hidden">
           <div className="bg-white border border-slate-100 rounded-[3rem] p-10 max-w-5xl w-full shadow-[0_20px_60px_rgba(0,0,0,0.15)] relative overflow-y-auto max-h-[90vh]">
             

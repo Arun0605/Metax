@@ -1,3 +1,6 @@
-fastapi
+fastapi[all]
 uvicorn
 pydantic
+openpyxl
+gspread
+google-auth

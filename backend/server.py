@@ -1,9 +1,56 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from openpyxl import Workbook, load_workbook
 import uvicorn
 import os
+import json
+import datetime
+
+# ── Google Sheets integration (optional — only active if env vars set) ──
+try:
+    import gspread
+    from google.oauth2.service_account import Credentials
+    GSPREAD_AVAILABLE = True
+except ImportError:
+    GSPREAD_AVAILABLE = False
+
+SHEET_HEADERS = [
+    "Timestamp", "Name", "Phone", "Email", "City",
+    "Age", "Gender", "Height(cm)", "Weight(kg)", "BMI",
+    "Procedure", "Has_Diabetes", "HbA1c", "Has_HTN",
+    "Has_OSA", "Has_GERD", "Has_OA", "Notes"
+]
+
+def get_sheet():
+    """Return the first worksheet of the MetaX Patients Google Sheet, or None."""
+    if not GSPREAD_AVAILABLE:
+        return None
+    creds_json = os.environ.get("GOOGLE_CREDENTIALS_JSON")
+    sheet_id   = os.environ.get("GOOGLE_SHEET_ID")
+    if not creds_json or not sheet_id:
+        return None
+    try:
+        creds_dict = json.loads(creds_json)
+        scopes = [
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive",
+        ]
+        creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+        client = gspread.authorize(creds)
+        sh = client.open_by_key(sheet_id)
+        ws = sh.sheet1
+        # Add headers if sheet is empty
+        if ws.row_count == 0 or ws.cell(1, 1).value != "Timestamp":
+            ws.insert_row(SHEET_HEADERS, 1)
+        return ws
+    except Exception as e:
+        print(f"[Google Sheets] connection failed: {e}")
+        return None
 
 app = FastAPI(title="MetaX Digital Twin API - Evidence Based Build")
+
+EXCEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'patients.xlsx')
 
 # Explicitly allow your new domain
 origins = [
@@ -276,6 +323,84 @@ async def generate_simulation(request: Request):
         "baseline_risks": {"liver_disease_nfs": calculate_liver_nfs(age, bmi, data.get('labs',{}))},
         "surgical_projections": projections
     }
+
+# ==========================================
+# PATIENT DATA ENDPOINTS
+# ==========================================
+
+EXCEL_HEADERS = [
+    "Timestamp", "Name", "Phone", "Email", "City", "Age", "Gender",
+    "Height(cm)", "Weight(kg)", "BMI", "Procedure",
+    "Has_Diabetes", "HbA1c", "Has_HTN", "Has_OSA", "Has_GERD", "Has_OA", "Notes"
+]
+
+@app.post('/api/patients/save')
+async def save_patient(request: Request):
+    data = await request.json()
+
+    row = [
+        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        data.get("name", ""),
+        data.get("phone", ""),
+        data.get("email", ""),
+        data.get("city", ""),
+        data.get("age", ""),
+        data.get("gender", ""),
+        data.get("height", ""),
+        data.get("weight", ""),
+        data.get("bmi", ""),
+        data.get("procedure", ""),
+        str(data.get("has_diabetes", "")),
+        data.get("hba1c", ""),
+        str(data.get("has_htn", "")),
+        str(data.get("has_osa", "")),
+        str(data.get("has_gerd", "")),
+        str(data.get("has_oa", "")),
+        data.get("notes", ""),
+    ]
+
+    # ── Primary: Google Sheets ──
+    sheet_saved = False
+    ws = get_sheet()
+    if ws:
+        try:
+            ws.append_row(row, value_input_option="USER_ENTERED")
+            sheet_saved = True
+            print(f"[Google Sheets] Saved patient: {data.get('name','unknown')}")
+        except Exception as e:
+            print(f"[Google Sheets] append failed: {e}")
+
+    # ── Fallback: local Excel ──
+    try:
+        if not os.path.exists(EXCEL_PATH):
+            wb = Workbook()
+            wb_ws = wb.active
+            wb_ws.title = "Patients"
+            wb_ws.append(SHEET_HEADERS)
+            wb.save(EXCEL_PATH)
+        wb = load_workbook(EXCEL_PATH)
+        wb_ws = wb.active
+        wb_ws.append(row)
+        wb.save(EXCEL_PATH)
+    except Exception as e:
+        print(f"[Excel fallback] failed: {e}")
+
+    return {"status": "saved", "google_sheets": sheet_saved}
+
+@app.get('/api/patients/export')
+async def export_patients():
+    if not os.path.exists(EXCEL_PATH):
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Patients"
+        ws.append(EXCEL_HEADERS)
+        wb.save(EXCEL_PATH)
+    return FileResponse(
+        EXCEL_PATH,
+        media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        filename='metax_patients.xlsx'
+    )
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
